@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
@@ -61,6 +62,49 @@ class HomePage extends StatelessWidget {
     return file;
   }
 
+  Future<File> generatePdfWithImage() async {
+    final pdf = pw.Document();
+    final image = pw.MemoryImage(
+      (await rootBundle.load("assets/images/imagen1.jpg")).buffer.asUint8List(),
+    );
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Center(
+            child: pw.Column(
+              children: [
+                pw.Text(
+                  "PDF CON IMAGEN",
+                  style: pw.TextStyle(
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.SizedBox(height: 16),
+                pw.Text(
+                  "Este es un ejemplo de parrafo apra el pdf creado con imagenes",
+                  style: pw.TextStyle(fontSize: 18, color: PdfColors.blue),
+                ),
+                pw.SizedBox(height: 32),
+                pw.Image(image, height: 200, width: 200),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+
+    //Obtener la ruta de almacenamiento local
+    final output = await getApplicationDocumentsDirectory();
+    final file = File("${output.path}/example.pdf");
+
+    //guardar el archivvo
+    await file.writeAsBytes(await pdf.save());
+    print("pdf guardado en ${file.path}");
+    return file;
+  }
+
   void openPdfFile(File pdfFile) async {
     try {
       print("Intentando abrir el pdf");
@@ -91,6 +135,13 @@ class HomePage extends StatelessWidget {
                 openPdfFile(pdfFile);
               },
               child: Text("Esportar a PDF con tabla"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final pdfFile = await generatePdfWithImage();
+                openPdfFile(pdfFile);
+              },
+              child: Text("Esportar a PDF con texto personalizado e imagen"),
             ),
           ],
         ),
