@@ -105,6 +105,75 @@ class HomePage extends StatelessWidget {
     return file;
   }
 
+  Future<File> generateDynamicPdf(String title, String sutbtitle) async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Center(
+            child: pw.Column(
+              children: [
+                pw.Text(
+                  title,
+                  style: pw.TextStyle(
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.SizedBox(height: 16),
+                pw.Text(
+                  sutbtitle,
+                  style: pw.TextStyle(fontSize: 18, color: PdfColors.blue),
+                ),
+                pw.SizedBox(height: 32),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+
+    //Obtener la ruta de almacenamiento local
+    final output = await getApplicationDocumentsDirectory();
+    final file = File("${output.path}/example.pdf");
+
+    //guardar el archivvo
+    await file.writeAsBytes(await pdf.save());
+    print("pdf guardado en ${file.path}");
+    return file;
+  }
+
+  Future<File> generatePdfMuliPage() async {
+    final pdf = pw.Document();
+
+    for (int i = 0; i < 5; i++) {
+      pdf.addPage(pw.MultiPage(
+        header: (pw.Context context) {
+          return pw.Text("Encbezado del PDF");
+        },
+        footer: (context) =>
+            pw.Text("Página ${context.pageNumber} de ${context.pagesCount}"),
+        build: (pw.Context context) {
+          return [
+            pw.Center(
+              child: pw.Text("Esta es la página $i"),
+            )
+          ];
+        },
+      ));
+    }
+
+    //Obtener la ruta de almacenamiento local
+    final output = await getApplicationDocumentsDirectory();
+    final file = File("${output.path}/example.pdf");
+
+    //guardar el archivvo
+    await file.writeAsBytes(await pdf.save());
+    print("pdf guardado en ${file.path}");
+    return file;
+  }
+
   void openPdfFile(File pdfFile) async {
     try {
       print("Intentando abrir el pdf");
@@ -127,21 +196,35 @@ class HomePage extends StatelessWidget {
                 final pdfFile = await generatePdf();
                 openPdfFile(pdfFile);
               },
-              child: Text("Esportar a PDF"),
+              child: Text("Exportar a PDF"),
             ),
             ElevatedButton(
               onPressed: () async {
                 final pdfFile = await generateTablePdf();
                 openPdfFile(pdfFile);
               },
-              child: Text("Esportar a PDF con tabla"),
+              child: Text("Exportar a PDF con tabla"),
             ),
             ElevatedButton(
               onPressed: () async {
                 final pdfFile = await generatePdfWithImage();
                 openPdfFile(pdfFile);
               },
-              child: Text("Esportar a PDF con texto personalizado e imagen"),
+              child: Text("Exportar a PDF con texto personalizado e imagen"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final pdfFile = await generateDynamicPdf("Titulo", "Subtitulo");
+                openPdfFile(pdfFile);
+              },
+              child: Text("Exportar a PDF dinámico"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final pdfFile = await generatePdfMuliPage();
+                openPdfFile(pdfFile);
+              },
+              child: Text("Exportar a PDF con varias páginas"),
             ),
           ],
         ),
