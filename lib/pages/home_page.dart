@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:open_filex/open_filex.dart';
@@ -184,6 +185,52 @@ class HomePage extends StatelessWidget {
     }
   }
 
+  void exporToExcel() async {
+    //Crear libro de excel
+    var excel = Excel.createExcel(); //esto crea un archivo excel vacio
+
+    //Obtenuiendo una hoja activa o crear una nueva hoja
+    Sheet sheetObject = excel['MySheet'];
+
+    //agregar datos a las celdas
+    sheetObject.cell(CellIndex.indexByString("A1")).value =
+        TextCellValue("Nombre");
+    sheetObject.cell(CellIndex.indexByString("B1")).value =
+        TextCellValue("Edad");
+    sheetObject
+        .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 1))
+        .value = TextCellValue("País");
+
+    //Agregar filas dinámicamente
+    List<List<dynamic>> data = [
+      ["Carlos", 25, "Perú"],
+      ["Aana", 36, "México"],
+      ["Isaias", 63, "España"],
+    ];
+
+    for (int i = 0; i < data.length; i++) {
+      for (int j = 0; j < data[i].length; j++) {
+        sheetObject
+            .cell(CellIndex.indexByColumnRow(columnIndex: j, rowIndex: i))
+            .value = data[i][j];
+      }
+    }
+
+    //Guardar el archivo excel
+    var bytes = excel.encode(); //convertimos el arhivo a bytes
+
+    //Obteniendo directorio de almacenamiento
+    Directory? directory = await getExternalStorageDirectory();
+    String filePath = "${directory!.path}/Reporte.xlsx";
+
+    //Guardar el archivo
+    File(filePath)
+      ..createSync(recursive: true)
+      ..writeAsBytes(bytes!);
+
+    print("archivo guardado en: ${filePath}");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -225,6 +272,12 @@ class HomePage extends StatelessWidget {
                 openPdfFile(pdfFile);
               },
               child: Text("Exportar a PDF con varias páginas"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                exporToExcel();
+              },
+              child: Text("Exportar a excel"),
             ),
           ],
         ),
