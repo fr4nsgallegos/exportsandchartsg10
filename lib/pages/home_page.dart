@@ -391,14 +391,28 @@ class HomePage extends StatelessWidget {
     sheet.cell(CellIndex.indexByString("C1")).value = getCellValue("Edad");
     sheet.cell(CellIndex.indexByString("C1")).cellStyle = cellStyle;
 
+    sheet.cell(CellIndex.indexByString("D1")).value = getCellValue("ID");
+    sheet.cell(CellIndex.indexByString("D1")).cellStyle = cellStyle;
+
     sheet.setColumnWidth(1, 20); //AMPLIANDO ANCHO DE LA COLUMNA CORREO
     sheet.setRowHeight(0, 25); //AMPLIANDO EL ALTO DE LA CABECERA
 
     int row = 1;
     List.generate(docs.length, (index) {
       sheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: row))
+          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: row))
           .value = getCellValue(docs[index]["name"]);
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: row))
+          .value = getCellValue(docs[index]["lastname"]);
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: row))
+          .value = getCellValue(docs[index]["age"]);
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: row))
+          .value = getCellValue(docs[index].id);
+
+      row++;
     });
 
     //Guardamos el archivo
