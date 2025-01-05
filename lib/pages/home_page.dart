@@ -474,6 +474,7 @@ class HomePage extends StatelessWidget {
     chart.bottomRow = row + 15;
     chart.leftColumn = 1;
     chart.rightColumn = 5;
+    worksheet.charts = charts;
 
     // chart.primaryCategoryAxis.categoryNames =
     //     worksheet.getRangeByName("A2:A${row - 1}");
