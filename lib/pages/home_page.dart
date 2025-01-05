@@ -185,6 +185,20 @@ class HomePage extends StatelessWidget {
     }
   }
 
+  dynamic getCellValue(dynamic value) {
+    if (value is String) {
+      return TextCellValue(value);
+    } else if (value is int) {
+      return IntCellValue(value);
+    } else if (value is double) {
+      return DoubleCellValue(value);
+    } else if (value is double) {
+      return DoubleCellValue(value);
+    } else {
+      return TextCellValue(value.toString());
+    }
+  }
+
   void exporToExcel() async {
     //Crear libro de excel
     var excel = Excel.createExcel(); //esto crea un archivo excel vacio
@@ -212,7 +226,7 @@ class HomePage extends StatelessWidget {
       for (int j = 0; j < data[i].length; j++) {
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: j, rowIndex: i))
-            .value = data[i][j];
+            .value = getCellValue(data[i][j]);
       }
     }
 
