@@ -243,6 +243,9 @@ class HomePage extends StatelessWidget {
       ..writeAsBytes(bytes!);
 
     print("archivo guardado en: ${filePath}");
+
+    OpenResult result = await OpenFilex.open(filePath);
+    print("Estado de apertura: ${result.message}");
   }
 
   @override
