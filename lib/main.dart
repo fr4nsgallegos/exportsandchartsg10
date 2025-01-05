@@ -1,4 +1,5 @@
 import 'package:exportsandchardg10/firebase_options.dart';
+import 'package:exportsandchardg10/pages/home2_page.dart';
 import 'package:exportsandchardg10/pages/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

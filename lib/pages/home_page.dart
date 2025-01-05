@@ -8,6 +8,8 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' as excelx;
+import 'package:syncfusion_officechart/officechart.dart';
 
 class HomePage extends StatelessWidget {
   CollectionReference userReference =
@@ -188,6 +190,8 @@ class HomePage extends StatelessWidget {
       print("error: $e");
     }
   }
+
+//TRABAJANDO CON LA LIBRERIA EXCEL
 
   dynamic getCellValue(dynamic value) {
     if (value is String) {
@@ -429,6 +433,65 @@ class HomePage extends StatelessWidget {
     print("Estado de apertura: ${result.message}");
   }
 
+  // TRABAJANDO CON LA LIBRERIA syncfusion_flutter_xlsio
+
+  void exporteExcelSyncFusion() async {
+    final workbook = excelx.Workbook();
+    final excelx.Worksheet worksheet = workbook.worksheets[0];
+
+    worksheet.getRangeByName("A1").setText("Id");
+    worksheet.getRangeByIndex(1, 2).setText("Nombre");
+    worksheet.getRangeByIndex(1, 3).setText("valores");
+
+    int row = 2;
+    QuerySnapshot userCollection = await userReference.get();
+    List<QueryDocumentSnapshot> docs = userCollection.docs;
+
+    List.generate(docs.length, (index) {
+      worksheet.getRangeByIndex(row, 1).setText(docs[index].id);
+      worksheet.getRangeByIndex(row, 2).setText(docs[index]["name"]);
+      worksheet.getRangeByIndex(row, 3).setNumber(index.toDouble());
+      row++;
+    });
+
+    worksheet.getRangeByIndex(row, 2).setText("TOTAL");
+    worksheet.getRangeByIndex(row, 3).setFormula("=SUM(C2:C${row - 1})");
+
+    //COLOCANDO GRÁFICO
+    final ChartCollection charts = ChartCollection(worksheet);
+    final Chart chart = charts.add();
+
+    chart.dataRange = worksheet.getRangeByName("C1:C${row - 1}");
+    chart.chartTitle = "Valores por ID";
+
+    chart.primaryCategoryAxis.title = "IDS";
+    chart.primaryValueAxis.title = "valores";
+
+    chart.chartType = ExcelChartType.columnClustered3D;
+
+    //posicionar el gráfico
+    chart.topRow = row + 1;
+    chart.bottomRow = row + 15;
+    chart.leftColumn = 1;
+    chart.rightColumn = 5;
+
+    // chart.primaryCategoryAxis.categoryNames =
+    //     worksheet.getRangeByName("A2:A${row - 1}");
+
+    //almacenando dentro del celular
+    final List<int> bytes = workbook.saveAsStream();
+
+    final String path = (await getApplicationSupportDirectory()).path;
+    final String fileName = "$path/excelSync.xlsx";
+
+    final File file = File(fileName);
+    await file.writeAsBytes(bytes, flush: true);
+
+    workbook.dispose();
+
+    OpenFilex.open(fileName);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -494,6 +557,12 @@ class HomePage extends StatelessWidget {
                 exportFromFirestore();
               },
               child: Text("Exportar a excel cdesde firestore"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                exporteExcelSyncFusion();
+              },
+              child: Text("Exportar a excel usando syncfusion"),
             ),
           ],
         ),
