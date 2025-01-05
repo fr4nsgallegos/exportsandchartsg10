@@ -212,7 +212,7 @@ class HomePage extends StatelessWidget {
     sheetObject.cell(CellIndex.indexByString("B1")).value =
         TextCellValue("Edad");
     sheetObject
-        .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 1))
+        .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 0))
         .value = TextCellValue("País");
 
     //Agregar filas dinámicamente
@@ -225,7 +225,7 @@ class HomePage extends StatelessWidget {
     for (int i = 0; i < data.length; i++) {
       for (int j = 0; j < data[i].length; j++) {
         sheetObject
-            .cell(CellIndex.indexByColumnRow(columnIndex: j, rowIndex: i))
+            .cell(CellIndex.indexByColumnRow(columnIndex: j, rowIndex: i + 1))
             .value = getCellValue(data[i][j]);
       }
     }
