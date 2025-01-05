@@ -248,6 +248,63 @@ class HomePage extends StatelessWidget {
     print("Estado de apertura: ${result.message}");
   }
 
+  void exportMultipleSheets() async {
+    var excel = Excel.createExcel();
+
+    //Hoja 1
+    var sheet1 = excel["Hoja1"];
+    sheet1.cell(CellIndex.indexByString("A1")).value = getCellValue("Producto");
+    sheet1.cell(CellIndex.indexByString("B1")).value = getCellValue("Precio");
+    sheet1.cell(CellIndex.indexByString("C1")).value = getCellValue("Cantidad");
+
+    List<List<dynamic>> products = [
+      ["Laptop", 1500.00, 10],
+      ["Mouse", 150.90, 5],
+      ["Teclado", 30.50, 50],
+    ];
+
+    for (int i = 0; i < products.length; i++) {
+      for (int j = 0; j < products[i].length; j++) {
+        sheet1
+            .cell(CellIndex.indexByColumnRow(columnIndex: j, rowIndex: i + 1))
+            .value = getCellValue(products[i][j]);
+      }
+    }
+
+    //HOJA2
+    var sheet2 = excel["Hoja2"];
+    sheet2.cell(CellIndex.indexByString("A1")).value = getCellValue("Nombre");
+    sheet2.cell(CellIndex.indexByString("B1")).value = getCellValue("Correo");
+    sheet2.cell(CellIndex.indexByString("C1")).value = getCellValue("Teléfono");
+
+    List<List<dynamic>> users = [
+      ["Jhon", "Jhon12@gmail.com", "123465789"],
+      ["Benito", "ben12@gmail.com", "000000"],
+      ["Lucas", "Luacas654@gmail.com", "1268878787"],
+    ];
+
+    for (int i = 0; i < users.length; i++) {
+      for (int j = 0; j < users[i].length; j++) {
+        sheet2
+            .cell(CellIndex.indexByColumnRow(columnIndex: j, rowIndex: i + 1))
+            .value = getCellValue(users[i][j]);
+      }
+    }
+
+    //Guardamos el archivo
+    var bytes = excel.encode();
+    Directory? directory = await getExternalStorageDirectory();
+    String filePath = "${directory!.path}/multiSheetReporte.xlsx";
+
+    File(filePath)
+      ..createSync(recursive: true)
+      ..writeAsBytes(bytes!);
+
+    print("archivo excel de multiples hojas creado en: $filePath");
+    OpenResult result = await OpenFilex.open(filePath);
+    print("Estado de apertura: ${result.message}");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -295,6 +352,12 @@ class HomePage extends StatelessWidget {
                 exporToExcel();
               },
               child: Text("Exportar a excel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                exportMultipleSheets();
+              },
+              child: Text("Exportar a excel con múltiples hojas"),
             ),
           ],
         ),
